@@ -21,4 +21,10 @@
     </Login>
   </Group>
 
+  <Group id="runhotret" label="RunHotReturn">
+    <Login mode="run-hot-return" name="Test_HotReturn_Ctrl" pw="123">
+      <Booklet>runhotret</Booklet>
+    </Login>
+  </Group>
+
 </Testtakers>
