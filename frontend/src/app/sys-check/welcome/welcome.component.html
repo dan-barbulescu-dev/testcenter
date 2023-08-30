@@ -1,30 +1,23 @@
-<div class="sys-check-body" *ngIf="ds.loadConfigComplete">
+<div class="sys-check-body" *ngIf="sysCheckDataService.loadConfigComplete">
   <div class="flex-row-wrap" [style.justify-content]="'center'" [style.gap.px]="10">
     <mat-card appearance="raised" [style.flex-basis.px]="400">
       <mat-card-header>
-        <mat-card-title>{{ds.checkConfig?.label}}</mat-card-title>
+        <mat-card-title>{{sysCheckDataService.checkConfig?.label}}</mat-card-title>
       </mat-card-header>
-      <mat-card-content *ngIf="ds.loadConfigComplete">
-        <p>{{'Dieser Systemcheck soll gewährleisten, dass der von Ihnen verwendete Computer für eine bestimmte Befragung oder Testung geeignet ist.'| customtext:'syscheck_intro' | async}}
+      <mat-card-content *ngIf="sysCheckDataService.loadConfigComplete">
+        <p>{{'Dieser Systemcheck soll gewährleisten, dass der von Ihnen verwendete Computer für eine bestimmte ' +
+        'Befragung oder Testung geeignet ist.'| customtext:'syscheck_intro' | async}}
         </p>
         <h3>Schritte</h3>
         <ol>
-          <li *ngFor="let step of ds.stepLabels">{{step}}</li>
+          <li *ngFor="let step of sysCheckDataService.stepLabels">{{step}}</li>
         </ol>
-        <p *ngIf="ds.stepLabels.length > 1">Bitte oben den grünen Schalter nutzen für den nächsten Schritt!</p>
       </mat-card-content>
     </mat-card>
 
     <mat-card appearance="raised" [style.flex-basis.px]="400">
       <mat-card-content>
-        <table>
-          <tbody>
-          <tr *ngFor="let ed of ds.environmentReport">
-            <td>{{ed.label}}: </td>
-            <td>&nbsp;{{ed.value}}</td>
-          </tr>
-          </tbody>
-        </table>
+        <tc-report-result-list [environmentReport]=sysCheckDataService.environmentReport></tc-report-result-list>
       </mat-card-content>
     </mat-card>
   </div>

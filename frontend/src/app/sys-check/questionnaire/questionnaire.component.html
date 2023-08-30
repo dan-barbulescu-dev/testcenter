@@ -8,42 +8,47 @@
     </mat-card-header>
 
     <mat-card-content>
-      <div *ngIf="form" [formGroup]="form" class="formList">
-        <div *ngFor="let q of ds.checkConfig?.questions">
-          <div [ngSwitch]="q.type" class="formEntry">
-            <h3 *ngSwitchCase="'header'">{{ q.options.length > 0 ? q.options : q.prompt }}</h3>
-            <mat-form-field *ngSwitchCase="'text'" appearance="outline">
-              <mat-label>{{q.prompt}}</mat-label>
-              <textarea matInput data-cy="textarea" [formControlName]="q.id" [id]="q.id"
-                        cdkTextareaAutosize cdkAutosizeMinRows="2" class="formEntry"></textarea>
-            </mat-form-field>
-            <mat-form-field *ngSwitchCase="'string'" appearance="outline">
-              <mat-label>{{q.prompt}}</mat-label>
-              <input matInput data-cy="input-name" [formControlName]="q.id" [id]="q.id" class="formEntry">
-            </mat-form-field>
-            <mat-form-field *ngSwitchCase="'select'" appearance="outline">
-              <mat-label>{{q.prompt}}</mat-label>
-              <mat-select data-cy="selectfield" [id]="q.id" [formControlName]="q.id" class="formEntry">
-                <mat-option [attr.data-cy]="opt" *ngFor="let opt of q.options" [value]="opt">
-                  {{opt}}
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
-            <div *ngSwitchCase="'check'">
-              <mat-label *ngIf="q.prompt.length > 0">{{q.prompt}}</mat-label>
-              <mat-checkbox data-cy="checkbox" *ngSwitchCase="'check'" [formControlName]="q.id" [id]="q.id">{{q.value}}</mat-checkbox>
-            </div>
-            <div *ngSwitchCase="'radio'">
-              <p>{{q.prompt}}</p>
-              <mat-radio-group [id]="q.id"  [formControlName]="q.id" [name]="q.id">
-                <mat-radio-button [attr.data-cy]="opt" *ngFor="let opt of q.options" [value]="opt" class="formEntry">
-                  {{opt}}
-                </mat-radio-button>
-              </mat-radio-group>
-            </div>
-            <p *ngSwitchDefault>Unbekannter Control-Typ: {{q.type}} für Element-ID {{q.id}}</p>
-          </div>
-        </div>
+      <div *ngFor="let question of sysCheckDataService.checkConfig?.questions" [formGroup]="form">
+        <ng-container [ngSwitch]="question.type">
+          <h3 *ngSwitchCase="'header'">{{ question.options.length > 0 ? question.options : question.prompt }}</h3>
+
+          <mat-form-field *ngSwitchCase="'string'" appearance="outline">
+            <mat-label>{{question.prompt}}</mat-label>
+            <input matInput data-cy="input-name"
+                   [formControlName]="question.id" [id]="question.id" [required]="question.required">
+          </mat-form-field>
+
+          <mat-form-field *ngSwitchCase="'text'" appearance="outline">
+            <mat-label>{{question.prompt}}</mat-label>
+            <textarea matInput data-cy="textarea" [formControlName]="question.id" [id]="question.id"
+                      [required]="question.required"></textarea>
+          </mat-form-field>
+
+          <mat-form-field *ngSwitchCase="'select'" appearance="outline">
+            <mat-label>{{question.prompt}}</mat-label>
+            <mat-select data-cy="selectfield" [id]="question.id" [formControlName]="question.id" [required]="question.required">
+              <mat-option [attr.data-cy]="opt" *ngFor="let opt of question.options" [value]="opt">
+                {{opt}}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-checkbox *ngSwitchCase="'check'" data-cy="checkbox"
+                        [formControlName]="question.id" [id]="question.id" [required]="question.required">
+            {{question.prompt}}
+          </mat-checkbox>
+
+          <ng-container *ngSwitchCase="'radio'">
+            <p>{{question.prompt}}</p>
+            <mat-radio-group [id]="question.id" [formControlName]="question.id" [name]="question.id" [required]="question.required">
+              <mat-radio-button [attr.data-cy]="opt" *ngFor="let opt of question.options" [value]="opt" class="formEntry">
+                {{opt}}
+              </mat-radio-button>
+            </mat-radio-group>
+          </ng-container>
+
+          <p *ngSwitchDefault>Unbekannter Control-Typ: {{question.type}} für Element-ID {{question.id}}</p>
+        </ng-container>
       </div>
     </mat-card-content>
   </mat-card>

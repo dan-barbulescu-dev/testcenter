@@ -29,6 +29,7 @@ import { SysCheckComponent } from './sys-check.component';
 import { SysCheckChildCanActivateGuard, SysCheckRoutingModule } from './sys-check-routing.module';
 import { BackendService } from './backend.service';
 import { SysCheckDataService } from './sys-check-data.service';
+import { ReportResultListComponent } from './report-result-list.component';
 
 @NgModule({
   imports: [
@@ -61,7 +62,8 @@ import { SysCheckDataService } from './sys-check-data.service';
     QuestionnaireComponent,
     ReportComponent,
     SaveReportComponent,
-    TcSpeedChartComponent
+    TcSpeedChartComponent,
+    ReportResultListComponent
   ],
   providers: [
     BackendService,

@@ -1,5 +1,5 @@
 import { FormControl, FormGroup } from '@angular/forms';
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef, AfterViewChecked } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { SysCheckDataService } from '../sys-check-data.service';
 
@@ -7,20 +7,19 @@ import { SysCheckDataService } from '../sys-check-data.service';
   templateUrl: './questionnaire.component.html',
   styleUrls: ['./questionnaire.component.css', '../sys-check.component.css']
 })
-export class QuestionnaireComponent implements OnInit, OnDestroy {
+export class QuestionnaireComponent implements OnInit, OnDestroy, AfterViewChecked {
   form: FormGroup = new FormGroup([]);
   private readonly valueChangesSubscription: Subscription | null = null;
 
-  constructor(
-    public ds: SysCheckDataService
-  ) {
+  constructor(public sysCheckDataService: SysCheckDataService,
+              private readonly changeDetectorRef: ChangeDetectorRef) {
     const group: { [key: string] : FormControl } = {};
-    this.ds.checkConfig.questions
+    this.sysCheckDataService.checkConfig.questions
       .forEach(question => {
         group[question.id] = new FormControl('');
       });
     this.form = new FormGroup(group);
-    this.ds.questionnaireReport
+    this.sysCheckDataService.questionnaireReport
       .forEach(reportEntry => {
         this.form.controls[reportEntry.id].setValue(reportEntry.value);
       });
@@ -29,8 +28,12 @@ export class QuestionnaireComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     setTimeout(() => {
-      this.ds.setNewCurrentStep('q');
+      this.sysCheckDataService.setNewCurrentStep('q');
     });
+  }
+
+  ngAfterViewChecked(): void {
+    this.changeDetectorRef.detectChanges();
   }
 
   ngOnDestroy(): void {
@@ -40,13 +43,13 @@ export class QuestionnaireComponent implements OnInit, OnDestroy {
   }
 
   private updateReport() {
-    this.ds.questionnaireReport = [];
-    if (this.ds.checkConfig) {
-      this.ds.checkConfig.questions.forEach(element => {
+    this.sysCheckDataService.questionnaireReport = [];
+    if (this.sysCheckDataService.checkConfig) {
+      this.sysCheckDataService.checkConfig.questions.forEach(element => {
         if (element.type !== 'header') {
           const formControl = this.form.controls[element.id];
           if (formControl) {
-            this.ds.questionnaireReport.push({
+            this.sysCheckDataService.questionnaireReport.push({
               id: element.id,
               type: element.type,
               label: element.prompt,

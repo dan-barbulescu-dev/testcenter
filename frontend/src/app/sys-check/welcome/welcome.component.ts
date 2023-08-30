@@ -21,25 +21,23 @@ export class WelcomeComponent implements OnInit {
     }
   };
 
-  constructor(
-    public ds: SysCheckDataService,
-    private bs: BackendService
-  ) { }
+  constructor(public sysCheckDataService: SysCheckDataService,
+              private backendService: BackendService) { }
 
   ngOnInit(): void {
     setTimeout(() => {
-      this.ds.setNewCurrentStep('w');
+      this.sysCheckDataService.setNewCurrentStep('w');
       this.getScreenData();
       this.getFromUAParser();
       this.getNavigatorInfo();
       this.getBrowserPluginInfo();
-      this.ds.questionnaireReport.length = 0;
+      this.sysCheckDataService.questionnaireReport.length = 0;
       this.getTime()
         .subscribe(() => {
           const report = Array.from(this.report.values())
             .sort((item1: ReportEntry, item2: ReportEntry) => (item1.label > item2.label ? 1 : -1));
-          this.ds.environmentReport = Object.values(report);
-          this.ds.timeCheckDone = true;
+          this.sysCheckDataService.environmentReport = Object.values(report);
+          this.sysCheckDataService.timeCheckDone = true;
         });
     });
   }
@@ -131,7 +129,7 @@ export class WelcomeComponent implements OnInit {
   private getTime(): Observable<true> {
     const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     const clientTime = new Date().getTime();
-    return this.bs.getServerTime()
+    return this.backendService.getServerTime()
       .pipe(
         map(serverTime => {
           const timeDifferenceSeconds = Math.round((clientTime - serverTime.timestamp) / 1000);

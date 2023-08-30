@@ -1,7 +1,9 @@
 <div class="sys-check-body flex-row-center">
   <mat-card appearance="raised" [style.width.px]="810">
     <mat-card-header>
-      <mat-card-title>Bericht {{ saved ? ' - gespeichert' : ''}}</mat-card-title>
+      <mat-card-title>
+        <h2>Bericht {{ saved ? ' - gespeichert' : ''}}</h2>
+      </mat-card-title>
     </mat-card-header>
 
     <mat-card-content>
@@ -9,32 +11,25 @@
         {{'Bitte prüfen Sie die Eingaben (unvollständig):'| customtext:'syscheck_questionsRequiredMessage' | async}}
       </p>
       <ul>
-        <li *ngFor="let qd of questionnaireDataWarnings">
-          {{qd.label}}
+        <li *ngFor="let warning of questionnaireDataWarnings">
+          {{warning.label}}
         </li>
       </ul>
-      <h2 *ngIf="ds.environmentReport.length > 0">Computer (Betriebssystem, Browser)</h2>
-      <ul>
-        <li *ngFor="let reportData of ds.environmentReport">
-          {{reportData.label}}: {{reportData.value}}
-        </li>
-      </ul>
-      <h2 *ngIf="ds.networkReport.length > 0">Netzwerk/Internetverbindung</h2>
-      <ul>
-        <li *ngFor="let reportData of ds.networkReport">
-          {{reportData.label}}: {{reportData.value}}
-        </li>
-      </ul>
-      <h2 *ngIf="ds.questionnaireReport.length > 0">Fragen</h2>
-      <ul>
-        <li *ngFor="let reportData of ds.questionnaireReport">
-          {{reportData.label}}: {{reportData.value}}
-        </li>
-      </ul>
+
+      <h3 *ngIf="ds.environmentReport.length > 0">Computer (Betriebssystem, Browser)</h3>
+      <tc-report-result-list [environmentReport]="ds.environmentReport"></tc-report-result-list>
+
+      <h3 *ngIf="ds.networkReport.length > 0">Netzwerk/Internetverbindung</h3>
+      <tc-report-result-list [environmentReport]="ds.networkReport"></tc-report-result-list>
+
+      <h3 *ngIf="ds.questionnaireReport.length > 0">Fragen</h3>
+      <tc-report-result-list [environmentReport]="ds.questionnaireReport"></tc-report-result-list>
     </mat-card-content>
 
     <mat-card-actions>
-      <button mat-raised-button color="primary" [disabled]="saved" (click)="saveReport()" class="save_button">
+      <button mat-raised-button color="primary" class="save_button"
+              [disabled]="saved || questionnaireDataWarnings.length > 0"
+              (click)="saveReport()">
         Bericht senden
       </button>
       <button mat-raised-button [routerLink]="['/r/check-starter']" class="save_button">
