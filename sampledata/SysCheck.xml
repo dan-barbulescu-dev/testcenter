@@ -7,7 +7,7 @@
     <Description>Systemcheck-Beschreibung</Description>
   </Metadata>
 
-  <Config unit="UNIT.SAMPLE-2" savekey="saveme" skipnetwork="true">
+  <Config unit="UNIT.SAMPLE-2" savekey="saveme" skipnetwork="false">
     <UploadSpeed min="1024" good="2048" maxDevianceBytesPerSecond="10000" maxErrorsPerSequence="0" maxSequenceRepetitions="15">
       100000, 200000, 400000, 800000
     </UploadSpeed>
