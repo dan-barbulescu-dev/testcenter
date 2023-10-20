@@ -4,8 +4,6 @@ REPO_URL=iqb-berlin/testcenter
 
 echo "Applying patch: 14.11"
 
-sed -i "s#VERSION=.*#VERSION=14.11.0" .env
-
 # Rename SSL-config file
 if [ -f config/ssl-config.yml ]; then
   mv config/ssl-config.yml config/tls-config.yml
