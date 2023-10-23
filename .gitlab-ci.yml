@@ -47,11 +47,6 @@ stages:
 build-frontend:
   stage: build
   rules:
-    - !reference [.frontend-change, rules]
-    - if: $CI_PIPELINE_SOURCE == "external_pull_request_event" || $CI_PIPELINE_SOURCE == "web"
-    - if: "$CI_COMMIT_TAG"
-    - changes:
-      - e2e/**/*
   script:
     - docker build --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from iqbberlin/testcenter-frontend:dev
         --target dev -t iqbberlin/testcenter-frontend:dev -f docker/frontend.Dockerfile .
@@ -65,10 +60,6 @@ build-frontend:
 
 test-frontend-unit:
   stage: test
-  rules:
-    - !reference [.frontend-change, rules]
-    - if: $CI_PIPELINE_SOURCE == "external_pull_request_event" || $CI_PIPELINE_SOURCE == "web"
-    - if: "$CI_COMMIT_TAG"
   dependencies:
     - build-frontend
   script:
@@ -81,8 +72,8 @@ test-frontend-unit:
 
 build-frontend-prod:
   stage: deploy
-  rules:
-    - if: "$CI_COMMIT_TAG"
+  dependencies:
+    - build-frontend
   script:
     - |
       docker build --build-arg BUILDKIT_INLINE_CACHE=1
