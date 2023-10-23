@@ -40,8 +40,10 @@ test-frontend-unit:
     - build-frontend
   script:
 #    - docker load -i frontend_image.tar
-    - cp frontend/src/environments/environment.dev.ts frontend/src/environments/environment.ts
-    - docker run -v ./docs/dist:/docs/dist iqbberlin/testcenter-frontend:dev npx ng test --watch=false --code-coverage
+#    - cp frontend/src/environments/environment.dev.ts frontend/src/environments/environment.ts
+    - docker run
+        -v ./frontend/src:/app/src -v ./docs/dist:/docs/dist
+        iqbberlin/testcenter-frontend:dev npx ng test --watch=false --code-coverage
   artifacts:
     paths:
       - ./docs/dist/test-coverage-frontend-unit/*
