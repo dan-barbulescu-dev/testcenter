@@ -54,6 +54,7 @@ build-frontend-prod:
   dependencies:
     - build-frontend
   script:
+    - cp frontend/src/environments/environment.dev.ts frontend/src/environments/environment.ts
     - docker build --build-arg BUILDKIT_INLINE_CACHE=1
         --cache-from iqbberlin/testcenter-frontend:dev
         --cache-from iqbberlin/testcenter-frontend:prod-latest
