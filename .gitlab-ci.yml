@@ -53,11 +53,8 @@ build-frontend:
     - changes:
       - e2e/**/*
   script:
-    - |
-      docker build --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from iqbberlin/testcenter-frontend:dev
-      --target dev
-      -t iqbberlin/testcenter-frontend:dev
-      -f docker/frontend.Dockerfile .
+    - docker build --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from iqbberlin/testcenter-frontend:dev
+        --target dev -t iqbberlin/testcenter-frontend:dev -f docker/frontend.Dockerfile .
     - docker save iqbberlin/testcenter-frontend > frontend_image.tar
     - echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
     - docker push iqbberlin/testcenter-frontend:dev
