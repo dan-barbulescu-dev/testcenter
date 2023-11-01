@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 
 final class ReportType {
-
+// TODO use enum
     const SYSTEM_CHECK = 'sys-check';
     const RESPONSE = 'response';
     const LOG = 'log';

@@ -73,9 +73,11 @@ class WorkspaceController extends Controller {
 
   public static function getResults(Request $request, Response $response): Response {
     $workspaceId = (int) $request->getAttribute('ws_id');
-    $results = self::adminDAO()->getResultStats($workspaceId);
+    $workspace = new Workspace($workspaceId);
+    $resultsDb = self::adminDAO()->getResultStats($workspaceId);
+    $resultsFiles = $workspace->getDataFileStats();
 
-    return $response->withJson($results);
+    return $response->withJson(array_merge($resultsDb, $resultsFiles));
   }
 
   public static function deleteResponses(Request $request, Response $response): Response {
@@ -178,6 +180,7 @@ class WorkspaceController extends Controller {
 
   public static function getReport(Request $request, Response $response): ?Response {
     $workspaceId = (int) $request->getAttribute('ws_id');
+    $workspace = new Workspace($workspaceId);
 
     $dataIds = $request->getParam('dataIds', '') === ''
       ? []
@@ -195,23 +198,64 @@ class WorkspaceController extends Controller {
 
     $report = new Report($workspaceId, $dataIds, $reportType, $reportFormat);
 
+    $dataFromFiles = [];
+
     if ($reportType->getValue() == ReportType::SYSTEM_CHECK) {
       $report->setSysChecksFolderInstance(new SysChecksFolder($workspaceId));
     } else {
       $report->setAdminDAOInstance(self::adminDAO());
+
+      foreach ($dataIds as $dataId) {
+        $dataIdParts = explode('@', $dataId);
+        $hostName = array_pop($dataIdParts);
+        $groupName = implode('@', $dataIdParts);
+        if (!$hostName) {
+          continue;
+        }
+        $dataFromFile = $workspace->getDataFileContent($hostName, $groupName, $reportFormat, $reportType);
+        if (!$dataFromFile) {
+          continue;
+        }
+
+        $dataFromFiles[] = $dataFromFile;
+      }
     }
 
     if (!empty($dataIds) and $report->generate()) {
       switch ($reportFormat->getValue()) {
         case ReportFormat::CSV:
 
-          $response->getBody()->write($report->getCsvReportData());
+          $data = $report->getCsvReportData();
+
+          if ($dataFromFiles) {
+            $dataFromFiles = array_map(
+              function($csv) {
+                $lines = explode(Report::LINE_ENDING, $csv);
+                array_shift($lines);
+                return implode(Report::LINE_ENDING, $lines);
+              },
+              $dataFromFiles
+            );
+            $data .= Report::LINE_ENDING . implode(Report::LINE_ENDING, $dataFromFiles);
+          }
+
+          $response->getBody()->write($data);
           $response = $response->withHeader('Content-Type', 'text/csv;charset=UTF-8');
           break;
 
         case ReportFormat::JSON:
 
-          $response = $response->withJson($report->getReportData());
+          $data = json_encode($report->getReportData());
+          $data = '[' . substr($data, 1, strlen($data) - 1);
+
+          if ($dataFromFiles) {
+            $data .= Report::LINE_ENDING . implode(',', $dataFromFiles);
+          }
+
+          $data .= ']';
+
+          $response->getBody()->write($data);
+          $response = $response->withHeader('Content-Type', 'application/json');
           break;
 
         default:
@@ -345,5 +389,44 @@ class WorkspaceController extends Controller {
     $sysChecksFolder->saveSysCheckReport($report);
 
     return $response->withStatus(201);
+  }
+
+  public static function synchronize(Request $request, Response $response): Response {
+    $workspaceId = (int) $request->getAttribute('ws_id');
+    $remoteId = (int) $request->getAttribute('remote');
+
+    /* @var $authToken AuthToken */
+    $authToken = $request->getAttribute('AuthToken');
+    $user = self::adminDAO()->getAdmin($authToken->getToken());
+
+    $synchronizer = new Synchronizer($workspaceId);
+    $synchronizer->synchronize($remoteId, $user->getName());
+
+    return $response->withStatus(200);
+  }
+
+  public static function putRemote(Request $request, Response $response): Response {
+    $workspaceId = (int) $request->getAttribute('ws_id');
+
+    $synchronizer = new Synchronizer($workspaceId);
+    $remote = RequestBodyParser::getRequiredElement($request,'remote');
+    $synchronizer->instrument($remote);
+
+    return $response->withStatus(200);
+  }
+
+  public static function getRemoteKey(Request $request, Response $response): Response {
+    $sshKey = Git::getSSHKey();
+    return $response
+      ->withJson(['key' => $sshKey])
+      ->withStatus(200);
+  }
+
+  public static function getRemotes(Request $request, Response $response): Response {
+    $workspaceId = (int) $request->getAttribute('ws_id');
+    $workspace = new Workspace($workspaceId);
+    return $response
+      ->withJson($workspace->workspaceDAO->getRemotes())
+      ->withStatus(200);
   }
 }

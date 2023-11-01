@@ -5,10 +5,10 @@ declare(strict_types=1);
 
 class Report {
 
-    private const BOM = "\xEF\xBB\xBF";         // UTF-8 BOM for MS Excel
-    private const DELIMITER = ';';              // standard delimiter for MS Excel
-    private const ENCLOSURE = '"';
-    private const LINE_ENDING = "\n";
+    public const BOM = "\xEF\xBB\xBF";         // UTF-8 BOM for MS Excel
+    public const DELIMITER = ';';              // standard delimiter for MS Excel
+    public const ENCLOSURE = '"';
+    public const LINE_ENDING = "\n";
     private const CSV_CELL_FORMAT = self::ENCLOSURE . "%s" . self::ENCLOSURE;
 
     private int $workspaceId;
@@ -247,7 +247,7 @@ class Report {
 
         $csv[] = implode(
             self::DELIMITER,
-            ['groupname', 'loginname', 'code', 'bookletname', 'unitname', 'responses', 'laststate']
+            ['host', 'groupname', 'loginname', 'code', 'bookletname', 'unitname', 'responses', 'laststate']
         );
 
         foreach ($responseData as $row) {
@@ -255,6 +255,7 @@ class Report {
             $csv[] = implode(
                 self::DELIMITER,
                 [
+                    sprintf(self::CSV_CELL_FORMAT, $row['host']),
                     sprintf(self::CSV_CELL_FORMAT, $row['groupname']),
                     sprintf(self::CSV_CELL_FORMAT, $row['loginname']),
                     sprintf(self::CSV_CELL_FORMAT, $row['code']),

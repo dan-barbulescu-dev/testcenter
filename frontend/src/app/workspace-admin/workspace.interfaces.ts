@@ -47,6 +47,7 @@ export interface UnitResponse {
 }
 
 export interface ResultData {
+  host: string;
   groupName: string;
   groupLabel: string;
   bookletsStarted: number;

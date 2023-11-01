@@ -64,6 +64,11 @@
       </mat-cell>
     </ng-container>
 
+    <ng-container matColumnDef="host">
+      <mat-header-cell *matHeaderCellDef mat-sort-header class="table-header">Testcenter-Instanz</mat-header-cell>
+      <mat-cell *matCellDef="let element">{{element.host}}</mat-cell>
+    </ng-container>
+
     <ng-container matColumnDef="groupName">
       <mat-header-cell *matHeaderCellDef mat-sort-header class="table-header">Login-Gruppe</mat-header-cell>
       <mat-cell *matCellDef="let element">{{element.groupLabel}}</mat-cell>

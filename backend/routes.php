@@ -169,6 +169,18 @@ $app->group('/workspace', function(RouteCollectorProxy $group) {
 
   $group->delete('/{ws_id}/sys-check/reports', [WorkspaceController::class, 'deleteSysCheckReports'])
     ->add(new IsWorkspacePermitted('RW'));
+
+  $group->get('/{ws_id}/remotes', [WorkspaceController::class, 'getRemotes'])
+    ->add(new IsWorkspacePermitted('RW'));
+
+  $group->get('/{ws_id}/remote/{remote}', [WorkspaceController::class, 'synchronize'])
+    ->add(new IsWorkspacePermitted('RW'));
+
+  $group->get('/{ws_id}/remote-key', [WorkspaceController::class, 'getRemoteKey'])
+    ->add(new IsWorkspacePermitted('RW'));
+
+  $group->put('/{ws_id}/remote', [WorkspaceController::class, 'putRemote'])
+    ->add(new IsWorkspacePermitted('RW'));
 })
   ->add(new RequireToken('admin'));
 

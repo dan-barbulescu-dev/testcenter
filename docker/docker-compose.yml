@@ -32,6 +32,8 @@ services:
       <<: *env-mysql
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_INITDB_SKIP_TZINFO: 'true'
+    expose:
+      - "22"
     volumes:
       - dbdata:/var/lib/mysql
     networks:

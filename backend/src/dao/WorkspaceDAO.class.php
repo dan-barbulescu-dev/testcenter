@@ -542,4 +542,49 @@ class WorkspaceDAO extends DAO {
           true
         );
     }
+
+  public function getRemote(int $remoteId): ?array {
+    return $this->_(
+      "select remote, type from workspace_remotes where ws_id = :ws_id and id = :id",
+      [
+        ':ws_id' => $this->workspaceId,
+        ':id' => $remoteId
+      ]
+    );
+  }
+
+  public function getRemotes(): array {
+    return $this->_(
+      "select id, remote, type from workspace_remotes where ws_id = :ws_id",
+      [
+        ':ws_id' => $this->workspaceId
+      ],
+      true
+    );
+  }
+
+  public function addRemote(string $remote): void {
+    $this->_(
+      "insert ignore into workspace_remotes (ws_id, remote, type) values (:ws_id, :remote, 'tes')",
+      [
+        ':ws_id' => $this->workspaceId,
+        ':remote' => $remote
+      ]
+    );
+  }
+
+  public function getGroups(): array {
+    return array_map(
+      function (array $result): string {
+        return $result['group_name'];
+      },
+      $this->_(
+        "select group_name from login_sessions where workspace_id = :ws_id",
+        [
+          ':ws_id' => $this->workspaceId
+        ],
+        true
+      )
+    );
+  }
 }

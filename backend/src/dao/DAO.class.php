@@ -154,4 +154,8 @@ class DAO {
   public function rollBack(): void {
     $this->pdoDBhandle->rollBack();
   }
+
+  public function dumpTableToFile(string $tableName, string $filePath): void {
+    $this->_("select * from $tableName into outfile '$filePath'");
+  }
 }

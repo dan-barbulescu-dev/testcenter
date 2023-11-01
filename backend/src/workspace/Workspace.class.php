@@ -8,7 +8,7 @@ class Workspace {
   public WorkspaceDAO $workspaceDAO;
 
   // dont' change order, it's the order of possible dependencies
-  const subFolders = ['Resource', 'Unit', 'Booklet', 'Testtakers', 'SysCheck'];
+  const subFolders = ['Resource', 'Unit', 'Booklet', 'Testtakers', 'SysCheck', 'Data'];
 
   static function getAll(): array {
     $workspaces = [];
@@ -476,5 +476,28 @@ class Workspace {
       CacheService::storeFile($path);
     }
     return $resourceListStructured;
+  }
+
+  public function getDataFileStats(): array {
+    $statsFiles = Folder::glob($this->getOrCreateSubFolderPath('Data'), '*.stats.json');
+    $result = [];
+    foreach($statsFiles as $statsFile) {
+      $hostname = basename($statsFile, '.stats.json');
+      if ($hostname == SystemConfig::$system_hostname) {
+        continue;
+      }
+      $stats = json_decode(file_get_contents($statsFile));
+      $result = array_merge($result, $stats);
+    }
+    return $result;
+  }
+
+  public function getDataFileContent(string $hostname, string $group, ReportFormat $reportFormat, ReportType $reportType): string {
+    $fileName = $this->getOrCreateSubFolderPath('Data') . "/$hostname.$group.{$reportType->getValue()}s.{$reportFormat->getValue()}";
+    if (!file_exists($fileName)) {
+      return "";
+    } else {
+      return file_get_contents($fileName);
+    }
   }
 }

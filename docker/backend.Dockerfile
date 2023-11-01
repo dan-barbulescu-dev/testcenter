@@ -27,7 +27,7 @@ VOLUME /vendor
 
 FROM php:${PHP_VERSION}-apache-bullseye AS base
 
-RUN apt-get update && apt-get install -y libzip-dev
+RUN apt-get update && apt-get install -y libzip-dev git default-mysql-client
 
 RUN docker-php-ext-install -j$(nproc) pdo_mysql zip
 RUN pecl install igbinary && docker-php-ext-enable igbinary

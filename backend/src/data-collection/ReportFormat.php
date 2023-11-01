@@ -1,5 +1,5 @@
 <?php
-
+// TODO use enum
 declare(strict_types=1);
 
 

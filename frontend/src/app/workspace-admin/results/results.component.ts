@@ -18,10 +18,10 @@ import { ReportType, ResultData } from '../workspace.interfaces';
 })
 export class ResultsComponent implements OnInit, OnDestroy {
   displayedColumns: string[] = [
-    'selectCheckbox', 'groupName', 'bookletsStarted', 'numUnitsMin', 'numUnitsMax', 'numUnitsAvg', 'lastChange'
+    'selectCheckbox', 'host', 'groupName', 'bookletsStarted', 'numUnitsMin', 'numUnitsMax', 'numUnitsAvg', 'lastChange'
   ];
 
-  resultDataSource: MatTableDataSource<ResultData> | null = new MatTableDataSource<ResultData>([]);
+  resultDataSource: MatTableDataSource<ResultData> = new MatTableDataSource<ResultData>([]);
   tableSelectionCheckbox = new SelectionModel<ResultData>(true, []);
 
   @ViewChild(MatSort, { static: true }) sort!: MatSort;
@@ -53,7 +53,7 @@ export class ResultsComponent implements OnInit, OnDestroy {
 
   updateTable(): void {
     this.tableSelectionCheckbox.clear();
-    this.resultDataSource = null;
+    this.resultDataSource = new MatTableDataSource<ResultData>([]);
     this.backendService.getResults(this.workspaceDataService.workspaceId)
       .subscribe((resultData: ResultData[]) => {
         this.resultDataSource = new MatTableDataSource<ResultData>(resultData);

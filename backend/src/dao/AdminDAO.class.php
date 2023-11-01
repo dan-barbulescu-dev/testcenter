@@ -330,6 +330,7 @@ class AdminDAO extends DAO {
     );
 
     foreach ($data as $index => $row) {
+      $data[$index]['host'] = SystemConfig::$system_hostname;
       $data[$index]['responses'] = $this->getResponseDataParts((int) $row['unit_id']);
       unset($data[$index]['unit_id']);
     }
@@ -524,7 +525,8 @@ class AdminDAO extends DAO {
         "numUnitsMax" => (int) $groupStats["num_units_max"],
         "numUnitsTotal" => (int) $groupStats["num_units_total"],
         "numUnitsAvg" => (float) $groupStats["num_units_mean"],
-        "lastChange" => TimeStamp::fromSQLFormat((string) $groupStats["lastchange"])
+        "lastChange" => TimeStamp::fromSQLFormat((string) $groupStats["lastchange"]),
+        "host" => SystemConfig::$system_hostname
       ];
     }, $resultStats);
   }
