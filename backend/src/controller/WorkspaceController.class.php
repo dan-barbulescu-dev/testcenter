@@ -246,7 +246,7 @@ class WorkspaceController extends Controller {
         case ReportFormat::JSON:
 
           $data = json_encode($report->getReportData());
-          $data = '[' . substr($data, 1, strlen($data) - 1);
+          $data = '[' . substr($data, 1, strlen($data) - 2);
 
           if ($dataFromFiles) {
             $data .= Report::LINE_ENDING . implode(',', $dataFromFiles);

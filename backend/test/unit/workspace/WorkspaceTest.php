@@ -219,7 +219,8 @@ class WorkspaceTest extends TestCase {
       "SysCheck" => 1,
       "Booklet" => 4,
       "Unit" => 2,
-      "Resource" => 3
+      "Resource" => 3,
+      'Data' => 0
     ];
 
     $result = $workspace->countFilesOfAllSubFolders();

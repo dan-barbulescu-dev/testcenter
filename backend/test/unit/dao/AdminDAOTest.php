@@ -88,6 +88,7 @@ final class AdminDAOTest extends TestCase {
         'bookletname' => 'first sample test',
         'unitname' => 'UNIT_1',
         'laststate' => '{"SOME_STATE":"WHATEVER"}',
+        'host' => 'localhost',
         'responses' => [
           [
             'id' => "all",
@@ -104,6 +105,7 @@ final class AdminDAOTest extends TestCase {
         'bookletname' => 'first sample test',
         'unitname' => 'UNIT.SAMPLE',
         'laststate' => '{"PRESENTATIONCOMPLETE":"yes"}',
+        'host' => 'localhost',
         'responses' => [
           [
             'id' => "all",
@@ -254,7 +256,8 @@ final class AdminDAOTest extends TestCase {
         'numUnitsMax' => 2,
         'numUnitsTotal' => 2,
         'numUnitsAvg' => 1.0,
-        'lastChange' => 1643011260
+        'lastChange' => 1643011260,
+        'host' => 'localhost'
       ],
       [
         'groupName' => 'review_group',
@@ -264,7 +267,8 @@ final class AdminDAOTest extends TestCase {
         'numUnitsMax' => 1,
         'numUnitsTotal' => 1,
         'numUnitsAvg' => 1.0,
-        'lastChange' => 1643011260
+        'lastChange' => 1643011260,
+        'host' => 'localhost'
       ]
     ];
     $result = $this->dbc->getResultStats(1);
@@ -283,7 +287,8 @@ final class AdminDAOTest extends TestCase {
       'numUnitsMax' => 2,
       'numUnitsTotal' => 3,
       'numUnitsAvg' => 1.0,
-      'lastChange' => 1699956800
+      'lastChange' => 1699956800,
+      'host' => 'localhost'
       ],
       [
         'groupName' => 'review_group',
@@ -293,7 +298,8 @@ final class AdminDAOTest extends TestCase {
         'numUnitsMax' => 1,
         'numUnitsTotal' => 1,
         'numUnitsAvg' => 1.0,
-        'lastChange' => 1643011260
+        'lastChange' => 1643011260,
+        'host' => 'localhost'
       ]
     ];
     $result = $this->dbc->getResultStats(1);

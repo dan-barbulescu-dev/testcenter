@@ -1,7 +1,7 @@
 <?php
 define('ROOT_DIR', realpath(__DIR__ . '/../..'));
 const DATA_DIR = ROOT_DIR . '/data';
-require_once(ROOT_DIR . '/backend/autoload.php');
+require_once(ROOT_DIR . '/backend/vendor/autoload.php');
 
 $args = CLI::getOpt();
 
@@ -22,11 +22,15 @@ define("SESSIONS_PER_RESTART_LOGIN", $args['session_per_restart_login'] ?? 3);
 define("DUPLICATE_LOGIN_SESSIONS_PER_RESTART_LOGIN", $args['duplicate_login_sessions_per_restart_login'] ?? 0);
 define("DUPLICATE_PERSON_SESSIONS_PER_RESTART_LOGIN", $args['duplicate_person_sessions_per_restart_login'] ?? 0);
 
-$runCode = Random::string(10, false, "abcdefghijklmnopqrstuvwxyz0123456789");
+define("ONLY_FILES", $args['only_files'] ?? 0);
+define("LOGIN_NAMES", in_array($args['login_names'], ['random', 'increment', 'default']) ? $args['login_names'] : 'default' );
+define("RUN_CODE", $args['run_code'] ?? '');
+
+$runCode = RUN_CODE ?? Random::string(10, false, "abcdefghijklmnopqrstuvwxyz0123456789");
 
 // https://gist.github.com/Clicketyclick/7803adb4b2b3da6ec1b7c9b1f29d9552
 function progressBar(int|float $done, int|float $total, string $info = "", int $width = 50, string $off = '_', string $on = '#'): string {
-  $perc = round(($done * 100) / $total);
+  $perc = $total ? round(($done * 100) / $total) : 0;
   $bar = round(($width * $perc) / 100);
 
   if ($bar > $width)  // Catch overflow where done > total
@@ -45,6 +49,7 @@ try {
   CLI::p("Run code: `$runCode`");
 
   CLI::h2("Connect to Database");
+  SystemConfig::read();
   CLI::connectDBWithRetries();
 
   $initDAO = new InitDAO();
@@ -66,6 +71,8 @@ try {
   }
 
   CLI::h2("Files");
+
+  $loginCount = 0;
 
   for ($wsIndex = 0; $wsIndex < WORKSPACES; $wsIndex++) {
     CLI::h3("Workspace #$wsIndex");
@@ -90,7 +97,16 @@ try {
         for ($reLoginIndex = 0; $reLoginIndex < LOGINS_PER_GROUP + RESTART_LOGINS_PER_GROUP; $reLoginIndex++) {
           $isReturn = $reLoginIndex < LOGINS_PER_GROUP;
           $mode = $isReturn ? 'run-hot-return' : 'run-hot-restart';
-          $login = "login_{$groupName}_$reLoginIndex";
+
+          if (LOGIN_NAMES == 'default') {
+            $login = "login_{$groupName}_$reLoginIndex";
+          } elseif (LOGIN_NAMES == 'random') {
+            $login = Random::string(12, false, "abcdefghijklmnopqrstuvwxyz0123456789");
+          } elseif (LOGIN_NAMES == 'increment') {
+            $loginCount++;
+            $login = "{$runCode}_$loginCount";
+          }
+
           $code2booklets = [];
           $myCodes = $isReturn ? $codes : [''];
           $myCodesStr = $isReturn ? $codesStr : '';
@@ -140,6 +156,11 @@ try {
     if ($stats['invalid']) {
       CLI::warning("Invalid files found: {$stats['invalid']}");
     }
+  }
+
+  if (ONLY_FILES) {
+    CLI::p('Only write files. Exit');
+    exit(0);
   }
 
   CLI::h3("Sessions");
