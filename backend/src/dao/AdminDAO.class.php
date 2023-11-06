@@ -477,13 +477,17 @@ class AdminDAO extends DAO {
         max(num_units) as num_units_max,
         sum(num_units) as num_units_total,
         avg(num_units) as num_units_mean,
-        max(timestamp_server) as lastchange
+        max(timestamp_server) as lastchange,
+        sum(num_unit_reviews) as num_unit_reviews,
+        sum(num_test_reviews) as num_test_reviews
       from (
         select
           login_sessions.group_name,
           group_label,
-          count(distinct units.id) as num_units,
-          max(tests.timestamp_server) as timestamp_server
+          count(distinct if(units.laststate is not null, units.id, null)) as num_units,
+          max(tests.timestamp_server) as timestamp_server,
+          count(distinct unit_reviews.entry, unit_reviews.unit_id, unit_reviews.reviewtime) as num_unit_reviews,
+          count(distinct test_reviews.entry, test_reviews.booklet_id, test_reviews.reviewtime) as num_test_reviews
         from
           tests
           left join person_sessions 
@@ -526,7 +530,9 @@ class AdminDAO extends DAO {
         "numUnitsTotal" => (int) $groupStats["num_units_total"],
         "numUnitsAvg" => (float) $groupStats["num_units_mean"],
         "lastChange" => TimeStamp::fromSQLFormat((string) $groupStats["lastchange"]),
-        "host" => SystemConfig::$system_hostname
+        "host" => SystemConfig::$system_hostname,
+        "numUnitReviews" => (int) $groupStats["num_unit_reviews"],
+        "numTestReviews" => (int) $groupStats["num_test_reviews"]
       ];
     }, $resultStats);
   }

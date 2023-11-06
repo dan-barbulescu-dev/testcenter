@@ -13,12 +13,12 @@ import { WorkspaceDataService } from '../workspacedata.service';
 import { ReportType, ResultData } from '../workspace.interfaces';
 
 @Component({
-  templateUrl: './results.component.html',
-  styleUrls: ['./results.component.css']
+  templateUrl: './reviews.component.html',
+  styleUrls: ['./reviews.component.css']
 })
-export class ResultsComponent implements OnInit, OnDestroy {
+export class ReviewsComponent implements OnInit, OnDestroy {
   displayedColumns: string[] = [
-    'selectCheckbox', 'host', 'groupName', 'bookletsStarted', 'numUnitsMin', 'numUnitsMax', 'numUnitsAvg', 'lastChange'
+    'selectCheckbox', 'host', 'groupName', 'bookletsStarted', 'numUnitReviews', 'numTestReviews', 'lastChange'
   ];
 
   resultDataSource: MatTableDataSource<ResultData> = new MatTableDataSource<ResultData>([]);
@@ -56,8 +56,8 @@ export class ResultsComponent implements OnInit, OnDestroy {
     this.resultDataSource = new MatTableDataSource<ResultData>([]);
     this.backendService.getResults(this.workspaceDataService.workspaceId)
       .subscribe((resultData: ResultData[]) => {
-        const onlyWithResponses = resultData.filter(result => result.numUnitsMin);
-        this.resultDataSource = new MatTableDataSource<ResultData>(onlyWithResponses);
+        const withResponses = resultData.filter(result => result.numUnitReviews || result.numTestReviews);
+        this.resultDataSource = new MatTableDataSource<ResultData>(withResponses);
         this.resultDataSource.sort = this.sort;
       });
   }

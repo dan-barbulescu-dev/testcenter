@@ -20,8 +20,9 @@ export class WorkspaceComponent implements OnInit, OnDestroy {
 
   navLinks = [
     { path: 'files', label: 'Dateien' },
-    { path: 'syscheck', label: 'System-Check Berichte' },
-    { path: 'results', label: 'Ergebnisse/Antworten' }
+    { path: 'results', label: 'Ergebnisse/Antworten' },
+    { path: 'reviews', label: 'Kommentare' },
+    { path: 'syscheck', label: 'System-Check Berichte' }
   ];
 
   ngOnInit(): void {

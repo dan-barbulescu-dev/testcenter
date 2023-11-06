@@ -31,6 +31,7 @@ import { IqbFilesUploadQueueComponent } from './files/iqb-files-upload-queue/iqb
 import {
   IqbFilesUploadInputForDirective
 } from './files/iqb-files-upload-input-for/iqb-files-upload-input-for.directive';
+import { ReviewsComponent } from './reviews/reviews.component';
 
 @NgModule({
   imports: [
@@ -64,6 +65,7 @@ import {
     WorkspaceComponent,
     FilesComponent,
     ResultsComponent,
+    ReviewsComponent,
     SyscheckComponent,
     IqbFilesUploadComponent,
     IqbFilesUploadQueueComponent,

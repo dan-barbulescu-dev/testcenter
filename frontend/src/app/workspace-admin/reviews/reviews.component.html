@@ -3,23 +3,13 @@
     <button
       color="primary"
       mat-raised-button
-      (click)="downloadResponsesCSV()"
+      (click)="downloadReviewsCSV()"
       [disabled]="!tableSelectionCheckbox.hasValue()"
       matTooltip="Download markierte Gruppen als CSV für Excel"
       matTooltipPosition="below"
-      data-cy="download-responses"
+      data-cy="download-comments"
     >
-      <mat-icon>cloud_download</mat-icon>Antworten
-    </button>
-    <button
-      color="primary"
-      mat-raised-button (click)="downloadLogsCSV()"
-      [disabled]="!tableSelectionCheckbox.hasValue()"
-      matTooltip="Download markierte Gruppen als CSV für Excel"
-      matTooltipPosition="below"
-      data-cy="download-logs"
-    >
-      <mat-icon>cloud_download</mat-icon>Logs
+      <mat-icon>cloud_download</mat-icon>Kommentare
     </button>
     <button
       color="primary"
@@ -69,22 +59,16 @@
       <mat-cell *matCellDef="let element" [style.justify-content]="'center'"> {{element.bookletsStarted}} </mat-cell>
     </ng-container>
 
-    <ng-container matColumnDef="numUnitsMin">
+    <ng-container matColumnDef="numUnitReviews">
       <mat-header-cell *matHeaderCellDef mat-sort-header class="table-header"
-                       [style.justify-content]="'center'">Aufgaben min</mat-header-cell>
-      <mat-cell *matCellDef="let element" [style.justify-content]="'center'">{{element.numUnitsMin}} </mat-cell>
+                       [style.justify-content]="'center'">Aufgaben-Kommentare</mat-header-cell>
+      <mat-cell *matCellDef="let element" [style.justify-content]="'center'">{{element.numUnitReviews}} </mat-cell>
     </ng-container>
 
-    <ng-container matColumnDef="numUnitsMax">
+    <ng-container matColumnDef="numTestReviews">
       <mat-header-cell *matHeaderCellDef mat-sort-header class="table-header"
-                       [style.justify-content]="'center'">Aufgaben max</mat-header-cell>
-      <mat-cell *matCellDef="let element" [style.justify-content]="'center'">{{element.numUnitsMax}} </mat-cell>
-    </ng-container>
-
-    <ng-container matColumnDef="numUnitsAvg">
-      <mat-header-cell *matHeaderCellDef mat-sort-header class="table-header"
-                       [style.justify-content]="'center'">Aufgaben Mittelwert</mat-header-cell>
-      <mat-cell *matCellDef="let element" [style.justify-content]="'center'">{{element.numUnitsAvg | number:'1.1-1'}} </mat-cell>
+                       [style.justify-content]="'center'">Testheft-Kommentare</mat-header-cell>
+      <mat-cell *matCellDef="let element" [style.justify-content]="'center'">{{element.numTestReviews}} </mat-cell>
     </ng-container>
 
     <ng-container matColumnDef="lastChange">

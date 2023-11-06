@@ -55,6 +55,8 @@ export interface ResultData {
   numUnitsMax: number;
   numUnitsAvg: number;
   lastChange: number;
+  numUnitReviews: number;
+  numTestReviews: number;
 }
 
 export interface LogData {
