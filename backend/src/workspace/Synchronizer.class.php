@@ -28,30 +28,19 @@ class Synchronizer extends Workspace {
     $backupPath = $this->getOrCreateSubFolderPath('Data');
     $groups = $this->workspaceDAO->getGroups();
     $hostname = SystemConfig::$system_hostname;
-    $types = [
-      new ReportType(ReportType::RESPONSE),
-      new ReportType(ReportType::LOG)
-    ];
-    $formats = [
-      new ReportFormat(ReportFormat::CSV),
-      new ReportFormat(ReportFormat::JSON)
-    ];
-    foreach ($types as $type) {
-      foreach ($formats as $format) {
+    foreach ([ReportType::RESPONSE, ReportType::LOG] as $type) {
+      foreach ([ReportFormat::JSON, ReportFormat::CSV] as $format) {
         foreach ($groups as $group) {
-          $typeValue = $type->getValue();
-          $formatValue = $format->getValue();
-          $outputFileName = "$backupPath/$hostname.$group.{$typeValue}s.$formatValue";
+          $outputFileName = "$backupPath/$hostname.$group.{$type}s.$format";
           echo "\n[$outputFileName]\n";
           $report = new Report($this->workspaceId, [$group], $type, $format);
-          $report->setAdminDAOInstance(new AdminDAO());
           if (!$report->generate()) {
             echo "No data for $outputFileName!";
           }
-          if ($formatValue == 'csv') {
-            $data = $report->getCsvReportData();
+          if ($format == ReportFormat::CSV) {
+            $data = $report->asString();
           } else {
-            $data = json_encode($report->getReportData());
+            $data = json_encode($report->reportData);
           }
           var_dump($data);
           if (false === file_put_contents($outputFileName, $data)) {
@@ -63,7 +52,7 @@ class Synchronizer extends Workspace {
       $stats = $adminDao->getResultStats($this->getId());
       $statsFileName = "$backupPath/$hostname.stats.json";
       if (false === file_put_contents($statsFileName, json_encode($stats))) {
-        echo "Could not write stats file $outputFileName!";
+        echo "Could not write stats file `$statsFileName`!";
       }
     }
   }

@@ -187,87 +187,20 @@ class WorkspaceController extends Controller {
       : explode(',', $request->getParam('dataIds', ''));
 
     try {
-      $reportType = new ReportType($request->getAttribute('type'));
-    } catch (InvalidArgumentException $exception) {
+      $reportType = ReportType::from($request->getAttribute('type'));
+    } catch (ValueError $exception) {
       throw new HttpNotFoundException($request, "Report type '{$request->getAttribute('type')}' not found.");
     }
 
-    $reportFormat = $request->getHeaderLine('Accept') == 'text/csv'
-      ? new ReportFormat(ReportFormat::CSV)
-      : new ReportFormat(ReportFormat::JSON);
+    $reportFormat = $request->getHeaderLine('Accept') == 'text/csv' ? ReportFormat::CSV : ReportFormat::JSON;
 
     $report = new Report($workspaceId, $dataIds, $reportType, $reportFormat);
+    $report->generate();
 
-    $dataFromFiles = [];
-
-    if ($reportType->getValue() == ReportType::SYSTEM_CHECK) {
-      $report->setSysChecksFolderInstance(new SysChecksFolder($workspaceId));
-    } else {
-      $report->setAdminDAOInstance(self::adminDAO());
-
-      foreach ($dataIds as $dataId) {
-        $dataIdParts = explode('@', $dataId);
-        $hostName = array_pop($dataIdParts);
-        $groupName = implode('@', $dataIdParts);
-        if (!$hostName) {
-          continue;
-        }
-        $dataFromFile = $workspace->getDataFileContent($hostName, $groupName, $reportFormat, $reportType);
-        if (!$dataFromFile) {
-          continue;
-        }
-
-        $dataFromFiles[] = $dataFromFile;
-      }
-    }
-
-    if (!empty($dataIds) and $report->generate()) {
-      switch ($reportFormat->getValue()) {
-        case ReportFormat::CSV:
-
-          $data = $report->getCsvReportData();
-
-          if ($dataFromFiles) {
-            $dataFromFiles = array_map(
-              function($csv) {
-                $lines = explode(Report::LINE_ENDING, $csv);
-                array_shift($lines);
-                return implode(Report::LINE_ENDING, $lines);
-              },
-              $dataFromFiles
-            );
-            $data .= Report::LINE_ENDING . implode(Report::LINE_ENDING, $dataFromFiles);
-          }
-
-          $response->getBody()->write($data);
-          $response = $response->withHeader('Content-Type', 'text/csv;charset=UTF-8');
-          break;
-
-        case ReportFormat::JSON:
-
-          $data = json_encode($report->getReportData());
-          $data = '[' . substr($data, 1, strlen($data) - 2);
-
-          if ($dataFromFiles) {
-            $data .= Report::LINE_ENDING . implode(',', $dataFromFiles);
-          }
-
-          $data .= ']';
-
-          $response->getBody()->write($data);
-          $response = $response->withHeader('Content-Type', 'application/json');
-          break;
-
-        default:
-
-          $response = $response->withHeader('Content-Type', 'application/json');  // @codeCoverageIgnore
-      }
-
-    } else {
-      $response = $reportFormat->getValue() === ReportFormat::CSV
-        ? $response->withHeader('Content-type', 'text/csv;charset=UTF-8')
-        : $response->withHeader('Content-Type', 'application/json');
-    }
+    $response->getBody()->write($report->asString());
+    $response = $reportFormat === ReportFormat::CSV
+      ? $response->withHeader('Content-type', 'text/csv;charset=UTF-8')
+      : $response->withHeader('Content-Type', 'application/json');
 
     return $response;
   }
