@@ -28,6 +28,26 @@ class WorkspaceController extends Controller {
     ]);
   }
 
+  public static function getAll(Request $request, Response $response): Response {
+    $workspaceId = (int) $request->getAttribute('ws_id');
+    $workspace = new Workspace($workspaceId);
+    $name = self::workspaceDAO($workspaceId)->getWorkspaceName();
+    $files = $workspace->getAllFilePaths();
+    $tmpFile = ZIP::create($workspace->getWorkspacePath(), ...$files);
+    $tmpFileLocation = stream_get_meta_data($tmpFile)['uri'];
+    $fileHandle = fopen($tmpFileLocation, 'rb');
+    $fileStream = new Stream($fileHandle);
+    return $response
+      ->withHeader('Content-Description', 'File Transfer')
+      ->withHeader('Content-Type', 'application/zip')
+      ->withHeader('Content-Disposition', 'attachment; filename="' . $name . '.zip"')
+      ->withHeader('Expires', '0')
+      ->withHeader('Cache-Control', 'must-revalidate')
+      ->withHeader('Pragma', 'public')
+      ->withHeader('Content-Length', filesize($tmpFileLocation))
+      ->withBody($fileStream);
+  }
+
   public static function put(Request $request, Response $response): Response {
     $requestBody = JSON::decode($request->getBody()->getContents());
     if (!isset($requestBody->name)) {
@@ -103,6 +123,7 @@ class WorkspaceController extends Controller {
       throw new HttpNotFoundException($request, "File not found:" . $fullFilename);
     }
 
+    // TODO those headers are not applied!
     $response->withHeader('Content-Description', 'File Transfer');
     $response->withHeader('Content-Type', ($fileType == 'Resource') ? 'application/octet-stream' : 'text/xml');
     $response->withHeader('Content-Disposition', 'attachment; filename="' . $filename . '"');
@@ -192,15 +213,22 @@ class WorkspaceController extends Controller {
       throw new HttpNotFoundException($request, "Report type '{$request->getAttribute('type')}' not found.");
     }
 
-    $reportFormat = $request->getHeaderLine('Accept') == 'text/csv' ? ReportFormat::CSV : ReportFormat::JSON;
 
-    $report = new Report($workspaceId, $dataIds, $reportType, $reportFormat);
-    $report->generate();
+    if (count($dataIds) <= 1) {
+      $reportFormat = $request->getHeaderLine('Accept') == 'text/csv' ? ReportFormat::CSV : ReportFormat::JSON;
 
-    $response->getBody()->write($report->asString());
-    $response = $reportFormat === ReportFormat::CSV
-      ? $response->withHeader('Content-type', 'text/csv;charset=UTF-8')
-      : $response->withHeader('Content-Type', 'application/json');
+      $report = new Report($workspaceId, $dataIds, $reportType, $reportFormat);
+      $report->generate();
+
+      $response->getBody()->write($report->asString());
+      $response = $reportFormat === ReportFormat::CSV
+        ? $response->withHeader('Content-type', 'text/csv;charset=UTF-8')
+        : $response->withHeader('Content-Type', 'application/json');
+    } else {
+
+    }
+
+
 
     return $response;
   }

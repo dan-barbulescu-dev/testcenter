@@ -8,7 +8,8 @@ class Workspace {
   public WorkspaceDAO $workspaceDAO;
 
   // dont' change order, it's the order of possible dependencies
-  const subFolders = ['Resource', 'Unit', 'Booklet', 'Testtakers', 'SysCheck', 'Data'];
+  const subFolders = ['Resource', 'Unit', 'Booklet', 'Testtakers', 'SysCheck'];
+  const subFoldersData = ['UnitAttachments', 'Data'];
 
   static function getAll(): array {
     $workspaces = [];
@@ -47,7 +48,7 @@ class Workspace {
 
   public function getOrCreateSubFolderPath(string $type): string {
     $subFolderPath = $this->workspacePath . '/' . $type;
-    if (!in_array($type, $this::subFolders)) {
+    if (!in_array($type, $this::subFolders) and !in_array($type, $this::subFoldersData)) {
       throw new Exception("Invalid type `$type`!");
     }
     if (file_exists($subFolderPath) and !is_dir($subFolderPath)) {
@@ -499,5 +500,14 @@ class Workspace {
     } else {
       return file_get_contents($fileName);
     }
+  }
+
+  public function getAllFilePaths(): array {
+    return Folder::getContentsFlat(
+      $this->getWorkspacePath(),
+      '',
+      function(string $entry, string $localPath): bool {
+        return in_array($entry, Workspace::subFolders) or in_array($localPath, Workspace::subFolders);
+      });
   }
 }

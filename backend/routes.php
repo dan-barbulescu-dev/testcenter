@@ -181,6 +181,9 @@ $app->group('/workspace', function(RouteCollectorProxy $group) {
 
   $group->put('/{ws_id}/remote', [WorkspaceController::class, 'putRemote'])
     ->add(new IsWorkspacePermitted('RW'));
+
+  $group->get('/{ws_id}/all', [WorkspaceController::class, 'getAll'])
+    ->add(new IsWorkspacePermitted('RO'));
 })
   ->add(new RequireToken('admin'));
 

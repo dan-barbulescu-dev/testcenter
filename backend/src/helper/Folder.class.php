@@ -45,19 +45,24 @@ class Folder {
     return $list;
   }
 
-  static function getContentsFlat(string $path, $localPath = ''): array {
+  // TODO unit test with filter
+  static function getContentsFlat(string $path, $localPath = '', Closure $filter = null): array {
     $list = [];
 
     if ($handle = opendir($path)) {
       while (false !== ($entry = readdir($handle))) {
-        if ($entry != "." && $entry != "..") {
-          $localPathEntry = $localPath ? "$localPath/$entry" : $entry;
-          if (is_file("$path/$entry")) {
-            $list[] = $localPathEntry;
-          }
-          if (is_dir("$path/$entry")) {
-            $list = array_merge($list, Folder::getContentsFlat("$path/$entry", $localPathEntry));
-          }
+        if ($entry == "." or $entry == "..") {
+          continue;
+        }
+        if (is_callable($filter) and !$filter($entry, $localPath)) {
+          continue;
+        }
+        $localPathEntry = $localPath ? "$localPath/$entry" : $entry;
+        if (is_file("$path/$entry")) {
+          $list[] = $localPathEntry;
+        }
+        if (is_dir("$path/$entry")) {
+          $list = array_merge($list, Folder::getContentsFlat("$path/$entry", $localPathEntry, $filter));
         }
       }
       closedir($handle);

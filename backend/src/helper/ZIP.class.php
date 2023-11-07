@@ -30,14 +30,24 @@ class ZIP {
     }
   }
 
-  static function create(string $fileName): ZipArchive {
-    $zip = new ZipArchive;
-    $res = $zip->open($fileName, ZipArchive::CREATE);
-    if ($res === TRUE) {
-      return $zip;
+  static function create(string $sourcePath, string ...$filesPaths) { // resource type is not available https://wiki.php.net/rfc/scalar_type_hints
+    $tmpFile = tmpfile();
+    if (!$tmpFile) {
+      throw new Exception("Could not create tmpfile");
     }
-    $error = ZIP::getErrorMessageText($res);
-    throw new Exception("Could not create ZIP: `$error`");
+    $tmpFileLocation = stream_get_meta_data($tmpFile)['uri'];
+    $zip = new ZipArchive;
+    $res = $zip->open($tmpFileLocation, ZipArchive::OVERWRITE);
+    if ($res !== true) {
+      $error = ZIP::getErrorMessageText($res);
+      throw new Exception("Could not create ZIP: `$error`");
+    }
+    foreach ($filesPaths as $filesPath) {
+      $zip->addFile("$sourcePath/$filesPath", $filesPath);
+    }
+    $zip->close();
+    fseek($tmpFile, 0);
+    return $tmpFile;
   }
 
   static private function getErrorMessageText(int $errorCode): string {
